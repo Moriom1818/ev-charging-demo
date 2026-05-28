@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EV Charging Demo</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #0a0e1a;
+      color: #fff;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      animation: fadeIn 0.5s ease;
+    }
+    .screen.active { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── START SCREEN ── */
+    #start-screen {
+      background: radial-gradient(ellipse at center, #0d2040 0%, #0a0e1a 70%);
+    }
+    .logo-title {
+      font-size: 2.4rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #00d4ff;
+      text-shadow: 0 0 30px #00d4ff88;
+      margin-bottom: 0.4rem;
+    }
+    .logo-sub {
+      font-size: 1rem;
+      color: #8899aa;
+      margin-bottom: 3rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+
+    /* car SVG on start screen */
+    .hero-car { margin-bottom: 3rem; filter: drop-shadow(0 0 20px #00d4ff55); }
+
+    .btn-start {
+      padding: 16px 56px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      background: linear-gradient(135deg, #00d4ff, #0077ff);
+      border: none;
+      border-radius: 50px;
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 0 30px #00d4ff66;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-start:hover {
+      transform: scale(1.06);
+      box-shadow: 0 0 50px #00d4ffaa;
+    }
+
+    /* ── CHOICE SCREEN ── */
+    #choice-screen {
+      background: radial-gradient(ellipse at center, #0d2040 0%, #0a0e1a 70%);
+      gap: 2rem;
+    }
+    .choice-title {
+      font-size: 1.6rem;
+      color: #cce8ff;
+      margin-bottom: 1rem;
+      letter-spacing: 1px;
+    }
+    .choice-cards {
+      display: flex;
+      gap: 2.5rem;
+    }
+    .card {
+      width: 200px;
+      padding: 2rem 1.5rem;
+      border-radius: 20px;
+      background: #0f1e33;
+      border: 2px solid #1a3a5c;
+      cursor: pointer;
+      text-align: center;
+      transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+    .card:hover {
+      transform: translateY(-8px);
+      border-color: #00d4ff;
+      box-shadow: 0 8px 40px #00d4ff44;
+    }
+    .card svg { width: 64px; height: 64px; }
+    .card-label {
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      color: #cce8ff;
+    }
+    .card-desc {
+      font-size: 0.8rem;
+      color: #607080;
+      line-height: 1.4;
+    }
+
+    /* ── ANIMATION SCREENS ── */
+    #wired-screen, #wireless-screen {
+      background: radial-gradient(ellipse at center, #0d2040 0%, #0a0e1a 70%);
+      gap: 0;
+      flex-direction: column;
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 24px;
+      left: 28px;
+      background: #1a2a3a;
+      border: 1px solid #2a4a6a;
+      color: #8899aa;
+      padding: 8px 20px;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .back-btn:hover { color: #00d4ff; border-color: #00d4ff; }
+
+    .screen-title {
+      font-size: 1.4rem;
+      letter-spacing: 2px;
+      color: #00d4ff;
+      text-transform: uppercase;
+      margin-bottom: 0.3rem;
+      text-shadow: 0 0 20px #00d4ff66;
+    }
+    .screen-sub {
+      font-size: 0.8rem;
+      color: #506070;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 2.5rem;
+    }
+
+    /* scene container */
+    .scene {
+      position: relative;
+      width: 720px;
+      height: 260px;
+      margin-bottom: 2.5rem;
+    }
+
+    /* ground */
+    .ground {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #1a3a5c, #00d4ff44, #1a3a5c, transparent);
+    }
+    .ground-glow {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 40px;
+      background: linear-gradient(0deg, #00d4ff08, transparent);
+    }
+
+    /* charging station */
+    .station {
+      position: absolute;
+      left: 60px;
+      bottom: 3px;
+    }
+
+    /* car */
+    .car-wrap {
+      position: absolute;
+      right: 60px;
+      bottom: 3px;
+    }
+
+    /* ── WIRED: cable ── */
+    .cable-path {
+      position: absolute;
+      bottom: 55px;
+      left: 168px;
+      width: 370px;
+      height: 50px;
+      pointer-events: none;
+    }
+
+    @keyframes dashFlow {
+      to { stroke-dashoffset: -40; }
+    }
+
+    .cable-line {
+      stroke: #00d4ff;
+      stroke-width: 3;
+      fill: none;
+      stroke-dasharray: 12 8;
+      stroke-dashoffset: 0;
+      animation: dashFlow 0.6s linear infinite;
+      filter: drop-shadow(0 0 4px #00d4ff);
+    }
+
+    /* spark dots along cable */
+    @keyframes sparkMove {
+      0%   { transform: translateX(0px) translateY(0px); opacity: 1; }
+      100% { transform: translateX(370px) translateY(0px); opacity: 0.4; }
+    }
+    .spark {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 0 8px #00d4ff, 0 0 16px #00d4ff;
+      bottom: 71px;
+      left: 168px;
+      animation: sparkMove 1.2s linear infinite;
+    }
+    .spark:nth-child(2) { animation-delay: 0.4s; }
+    .spark:nth-child(3) { animation-delay: 0.8s; }
+
+    /* ── WIRELESS: waves ── */
+    .wireless-waves {
+      position: absolute;
+      bottom: 3px;
+      right: 60px;
+      width: 320px;
+      height: 220px;
+      pointer-events: none;
+      overflow: visible;
+    }
+
+    @keyframes waveExpand {
+      0%   { r: 30; opacity: 0.8; }
+      100% { r: 160; opacity: 0; }
+    }
+
+    .wave-circle {
+      fill: none;
+      stroke: #00d4ff;
+      stroke-width: 2;
+      cx: 160;
+      cy: 220;
+      r: 30;
+      animation: waveExpand 2s ease-out infinite;
+      filter: drop-shadow(0 0 3px #00d4ff);
+    }
+    .wave-circle:nth-child(2) { animation-delay: 0.5s; stroke: #0099ff; }
+    .wave-circle:nth-child(3) { animation-delay: 1s;   stroke: #00ccff; }
+    .wave-circle:nth-child(4) { animation-delay: 1.5s; stroke: #00d4ff; }
+
+    /* ── EFFICIENCY BAR ── */
+    .efficiency-wrap {
+      width: 580px;
+      background: #0a1525;
+      border-radius: 16px;
+      padding: 20px 28px;
+      border: 1px solid #1a3a5c;
+    }
+    .eff-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .eff-label { font-size: 0.85rem; color: #607080; letter-spacing: 2px; text-transform: uppercase; }
+    .eff-value { font-size: 1.4rem; font-weight: 700; color: #00d4ff; }
+
+    .eff-bar-bg {
+      width: 100%;
+      height: 14px;
+      border-radius: 10px;
+      background: #0f1e33;
+      overflow: hidden;
+      position: relative;
+    }
+
+    @keyframes barFill {
+      from { width: 0%; }
+      to   { width: var(--fill); }
+    }
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+
+    .eff-bar-fill {
+      height: 100%;
+      border-radius: 10px;
+      animation: barFill 2s ease-out forwards, shimmer 2s linear infinite 2s;
+      background: linear-gradient(90deg, #0044ff, #00d4ff, #00ffcc, #00d4ff, #0044ff);
+      background-size: 200% 100%;
+      box-shadow: 0 0 12px #00d4ff88;
+    }
+
+    .eff-stats {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 14px;
+    }
+    .stat { text-align: center; }
+    .stat-val { font-size: 1rem; font-weight: 600; color: #cce8ff; }
+    .stat-lbl { font-size: 0.7rem; color: #405060; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+
+    /* car glow pulse when charging */
+    @keyframes chargePulse {
+      0%, 100% { filter: drop-shadow(0 0 10px #00d4ff44); }
+      50%       { filter: drop-shadow(0 0 28px #00d4ffcc); }
+    }
+    .charging .car-svg { animation: chargePulse 1.5s ease-in-out infinite; }
+
+    /* battery bar on car */
+    @keyframes batteryFill {
+      from { width: 4px; }
+      to   { width: 36px; }
+    }
+    .battery-fill {
+      animation: batteryFill 4s ease-in-out infinite alternate;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ START SCREEN ═══════════════ -->
+<div id="start-screen" class="screen active">
+  <div class="logo-title">EV CHARGE</div>
+  <div class="logo-sub">Electric Vehicle Charging Demo</div>
+
+  <!-- Simple hero car SVG -->
+  <svg class="hero-car" width="340" height="140" viewBox="0 0 340 140">
+    <!-- body shadow -->
+    <ellipse cx="170" cy="130" rx="120" ry="8" fill="#00d4ff11"/>
+    <!-- wheels -->
+    <circle cx="90"  cy="112" r="22" fill="#111827" stroke="#00d4ff" stroke-width="2"/>
+    <circle cx="90"  cy="112" r="11" fill="#1a2a3a" stroke="#00d4ff55" stroke-width="1.5"/>
+    <circle cx="250" cy="112" r="22" fill="#111827" stroke="#00d4ff" stroke-width="2"/>
+    <circle cx="250" cy="112" r="11" fill="#1a2a3a" stroke="#00d4ff55" stroke-width="1.5"/>
+    <!-- main body -->
+    <path d="M50 110 L50 82 Q52 70 68 62 L100 45 Q120 28 170 26 Q220 24 250 38 L288 56 Q308 64 310 78 L310 110 Z"
+          fill="#0d2040" stroke="#1a3a6a" stroke-width="2"/>
+    <!-- roof -->
+    <path d="M100 45 Q120 28 170 26 Q220 24 250 38 L240 65 Q220 58 170 56 Q120 56 105 62 Z"
+          fill="#0a1830" stroke="#1a3a6a" stroke-width="1"/>
+    <!-- window -->
+    <path d="M108 62 Q122 50 170 48 Q210 46 235 58 L228 74 Q206 68 170 68 Q130 68 114 74 Z"
+          fill="#0d2e50" stroke="#00d4ff44" stroke-width="1"/>
+    <!-- window tint shine -->
+    <path d="M118 54 Q135 48 165 47 L162 66 Q138 65 120 70 Z" fill="#00d4ff08"/>
+    <!-- headlight -->
+    <ellipse cx="298" cy="88" rx="10" ry="7" fill="#00d4ff" opacity="0.9"/>
+    <ellipse cx="298" cy="88" rx="6"  ry="4"  fill="#fff"/>
+    <!-- tail light -->
+    <rect x="51" y="80" width="8" height="14" rx="2" fill="#ff4444" opacity="0.85"/>
+    <!-- door line -->
+    <line x1="170" y1="62" x2="172" y2="108" stroke="#1a3a6a" stroke-width="1.5"/>
+    <!-- charge port -->
+    <rect x="54" y="88" width="10" height="8" rx="2" fill="#00d4ff33" stroke="#00d4ff" stroke-width="1"/>
+    <!-- underline glow -->
+    <path d="M50 110 L310 110" stroke="#00d4ff22" stroke-width="2"/>
+  </svg>
+
+  <button class="btn-start" onclick="show('choice-screen')">START</button>
+</div>
+
+<!-- ═══════════════ CHOICE SCREEN ═══════════════ -->
+<div id="choice-screen" class="screen">
+  <button class="back-btn" onclick="show('start-screen')">← Back</button>
+  <div class="choice-title">Choose Charging Method</div>
+  <div class="logo-sub" style="margin-bottom:2rem;">Select how you want to charge</div>
+
+  <div class="choice-cards">
+    <!-- Wired -->
+    <div class="card" onclick="show('wired-screen')">
+      <svg viewBox="0 0 64 64" fill="none">
+        <rect x="8"  y="14" width="16" height="36" rx="4" fill="#0f1e33" stroke="#00d4ff" stroke-width="1.5"/>
+        <rect x="14" y="22" width="4"  height="12" rx="1" fill="#00d4ff" opacity="0.7"/>
+        <line x1="24" y1="32" x2="56" y2="32" stroke="#00d4ff" stroke-width="2.5" stroke-dasharray="6 3"/>
+        <circle cx="56" cy="32" r="5" fill="#00d4ff"/>
+        <rect x="10" y="40" width="12" height="6" rx="2" fill="#00d4ff22" stroke="#00d4ff44" stroke-width="1"/>
+      </svg>
+      <div class="card-label">WIRED</div>
+      <div class="card-desc">Cable connection from charging station</div>
+    </div>
+
+    <!-- Wireless -->
+    <div class="card" onclick="show('wireless-screen')">
+      <svg viewBox="0 0 64 64" fill="none">
+        <rect x="20" y="36" width="24" height="6" rx="3" fill="#00d4ff" opacity="0.5"/>
+        <path d="M16 30 Q32 18 48 30" stroke="#00d4ff" stroke-width="2" fill="none" opacity="0.9" stroke-linecap="round"/>
+        <path d="M10 22 Q32 4  54 22"  stroke="#00d4ff" stroke-width="2" fill="none" opacity="0.6" stroke-linecap="round"/>
+        <path d="M4  14 Q32 -8 60 14"  stroke="#00d4ff" stroke-width="1.5" fill="none" opacity="0.3" stroke-linecap="round"/>
+        <circle cx="32" cy="44" r="4" fill="#00d4ff"/>
+      </svg>
+      <div class="card-label">WIRELESS</div>
+      <div class="card-desc">Inductive charging through the air</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ WIRED SCREEN ═══════════════ -->
+<div id="wired-screen" class="screen">
+  <button class="back-btn" onclick="show('choice-screen')">← Back</button>
+  <div class="screen-title">Wired Charging</div>
+  <div class="screen-sub">AC / DC Cable Connection</div>
+
+  <div class="scene">
+    <div class="ground"></div>
+    <div class="ground-glow"></div>
+
+    <!-- charging station -->
+    <div class="station">
+      <svg width="100" height="200" viewBox="0 0 100 200">
+        <!-- post -->
+        <rect x="32" y="50" width="36" height="140" rx="6" fill="#0d1f35" stroke="#1a3a6a" stroke-width="1.5"/>
+        <!-- screen -->
+        <rect x="38" y="60" width="24" height="30" rx="3" fill="#0a2a44"/>
+        <rect x="40" y="62" width="20" height="26" rx="2" fill="#0d3a5c"/>
+        <!-- screen glow / charging icon -->
+        <text x="50" y="80" text-anchor="middle" font-size="14" fill="#00d4ff" opacity="0.9">⚡</text>
+        <!-- plug socket -->
+        <rect x="36" y="100" width="28" height="18" rx="4" fill="#0a1525" stroke="#00d4ff" stroke-width="1.5"/>
+        <circle cx="44" cy="109" r="3" fill="#00d4ff" opacity="0.8"/>
+        <circle cx="56" cy="109" r="3" fill="#00d4ff" opacity="0.8"/>
+        <!-- logo strip -->
+        <rect x="34" y="124" width="32" height="4" rx="2" fill="#00d4ff" opacity="0.4"/>
+        <!-- base -->
+        <rect x="20" y="185" width="60" height="10" rx="4" fill="#0a1525" stroke="#1a3a6a" stroke-width="1"/>
+        <!-- cable connector leaving station -->
+        <rect x="64" y="106" width="16" height="6" rx="2" fill="#00d4ff" opacity="0.7"/>
+        <!-- indicator light -->
+        <circle cx="50" cy="145" r="4" fill="#00ff88" opacity="0.8"/>
+      </svg>
+    </div>
+
+    <!-- cable SVG -->
+    <svg class="cable-path" width="370" height="60" viewBox="0 0 370 60" style="position:absolute;bottom:52px;left:168px;">
+      <path d="M0 30 Q90 30 185 30 Q280 30 370 30" class="cable-line"/>
+    </svg>
+
+    <!-- spark particles -->
+    <div class="spark"></div>
+    <div class="spark"></div>
+    <div class="spark"></div>
+
+    <!-- car -->
+    <div class="car-wrap charging">
+      <svg class="car-svg" width="280" height="200" viewBox="0 0 280 200">
+        <!-- shadow -->
+        <ellipse cx="140" cy="192" rx="110" ry="6" fill="#00d4ff0a"/>
+        <!-- wheels -->
+        <circle cx="68"  cy="164" r="28" fill="#0d1220" stroke="#00d4ff" stroke-width="2"/>
+        <circle cx="68"  cy="164" r="14" fill="#0a1520" stroke="#00d4ff44" stroke-width="1.5"/>
+        <circle cx="212" cy="164" r="28" fill="#0d1220" stroke="#00d4ff" stroke-width="2"/>
+        <circle cx="212" cy="164" r="14" fill="#0a1520" stroke="#00d4ff44" stroke-width="1.5"/>
+        <!-- body -->
+        <path d="M30 162 L30 120 Q32 104 50 96 L82 74 Q104 52 140 50 Q176 48 206 62 L242 82 Q260 90 262 108 L262 162 Z"
+              fill="#0d2040" stroke="#1a3a6a" stroke-width="2"/>
+        <!-- roof -->
+        <path d="M82 74 Q104 52 140 50 Q176 48 206 62 L198 98 Q176 90 140 88 Q104 88 88 96 Z"
+              fill="#0a1830" stroke="#1a3a6a" stroke-width="1"/>
+        <!-- window -->
+        <path d="M90 96 Q106 82 140 80 Q172 78 195 92 L187 112 Q168 106 140 106 Q112 106 98 112 Z"
+              fill="#0d2e50" stroke="#00d4ff55" stroke-width="1"/>
+        <!-- headlight -->
+        <ellipse cx="252" cy="130" rx="10" ry="8" fill="#00d4ff" opacity="0.9"/>
+        <ellipse cx="252" cy="130" rx="6"  ry="4"  fill="#fff"/>
+        <!-- headlight beam -->
+        <path d="M262 128 L290 120 L290 140 Z" fill="#00d4ff11"/>
+        <!-- tail light -->
+        <rect x="31" y="118" width="8" height="18" rx="2" fill="#ff4444" opacity="0.8"/>
+        <!-- door line -->
+        <line x1="140" y1="90" x2="142" y2="158" stroke="#1a3a6a" stroke-width="1.5"/>
+        <!-- charge port (left side - connector) -->
+        <rect x="32" y="128" width="12" height="10" rx="2" fill="#00d4ff" stroke="#00aad4" stroke-width="1"/>
+
+        <!-- battery indicator on car -->
+        <g transform="translate(88,56)">
+          <rect x="0"  y="0" width="46" height="16" rx="3" fill="#0a1525" stroke="#00d4ff" stroke-width="1"/>
+          <rect x="46" y="4" width="5"  height="8"  rx="1" fill="#00d4ff44"/>
+          <rect x="2" y="2" width="36"  height="12" rx="2" fill="#0f1e33"/>
+          <rect x="4" y="3" class="battery-fill" height="10" rx="2"
+                fill="url(#battGrad)" width="36"/>
+        </g>
+        <defs>
+          <linearGradient id="battGrad" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%"   stop-color="#00ff88"/>
+            <stop offset="100%" stop-color="#00d4ff"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+  </div>
+
+  <!-- efficiency -->
+  <div class="efficiency-wrap">
+    <div class="eff-header">
+      <span class="eff-label">Charging Efficiency</span>
+      <span class="eff-value" id="wired-pct">95%</span>
+    </div>
+    <div class="eff-bar-bg">
+      <div class="eff-bar-fill" style="--fill: 95%;"></div>
+    </div>
+    <div class="eff-stats">
+      <div class="stat"><div class="stat-val">22 kW</div><div class="stat-lbl">Power</div></div>
+      <div class="stat"><div class="stat-val">95%</div><div class="stat-lbl">Efficiency</div></div>
+      <div class="stat"><div class="stat-val">~45 min</div><div class="stat-lbl">Full Charge</div></div>
+      <div class="stat"><div class="stat-val">AC/DC</div><div class="stat-lbl">Type</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ WIRELESS SCREEN ═══════════════ -->
+<div id="wireless-screen" class="screen">
+  <button class="back-btn" onclick="show('choice-screen')">← Back</button>
+  <div class="screen-title">Wireless Charging</div>
+  <div class="screen-sub">Inductive / Resonant Transfer</div>
+
+  <div class="scene">
+    <div class="ground"></div>
+    <div class="ground-glow"></div>
+
+    <!-- ground pad (transmitter) -->
+    <svg style="position:absolute;right:100px;bottom:3px;" width="220" height="20" viewBox="0 0 220 20">
+      <rect x="0" y="4" width="220" height="14" rx="7" fill="#0a1525" stroke="#00d4ff" stroke-width="1.5"/>
+      <rect x="10" y="7" width="200" height="8"  rx="4" fill="#0d2a44"/>
+      <!-- pulsing glow rect -->
+      <rect x="10" y="7" width="200" height="8" rx="4" fill="#00d4ff" opacity="0.15">
+        <animate attributeName="opacity" values="0.1;0.35;0.1" dur="1.5s" repeatCount="indefinite"/>
+      </rect>
+      <text x="110" y="16" text-anchor="middle" font-size="8" fill="#00d4ff" opacity="0.7" letter-spacing="2">WIRELESS PAD</text>
+    </svg>
+
+    <!-- wireless wave SVG -->
+    <svg class="wireless-waves" style="position:absolute;right:60px;bottom:3px;" width="320" height="220" viewBox="0 0 320 220">
+      <circle class="wave-circle" cx="160" cy="220" r="30">
+        <animate attributeName="r"       values="20;180"  dur="2s" repeatCount="indefinite" begin="0s"/>
+        <animate attributeName="opacity" values="0.9;0"   dur="2s" repeatCount="indefinite" begin="0s"/>
+      </circle>
+      <circle class="wave-circle" cx="160" cy="220" r="30" stroke="#0099ff">
+        <animate attributeName="r"       values="20;180"  dur="2s" repeatCount="indefinite" begin="0.5s"/>
+        <animate attributeName="opacity" values="0.9;0"   dur="2s" repeatCount="indefinite" begin="0.5s"/>
+      </circle>
+      <circle class="wave-circle" cx="160" cy="220" r="30" stroke="#00ffcc">
+        <animate attributeName="r"       values="20;180"  dur="2s" repeatCount="indefinite" begin="1s"/>
+        <animate attributeName="opacity" values="0.9;0"   dur="2s" repeatCount="indefinite" begin="1s"/>
+      </circle>
+      <circle class="wave-circle" cx="160" cy="220" r="30" stroke="#00d4ff">
+        <animate attributeName="r"       values="20;180"  dur="2s" repeatCount="indefinite" begin="1.5s"/>
+        <animate attributeName="opacity" values="0.9;0"   dur="2s" repeatCount="indefinite" begin="1.5s"/>
+      </circle>
+    </svg>
+
+    <!-- car (same, just floating slightly) -->
+    <div class="car-wrap charging" style="right:60px; bottom:22px;">
+      <svg class="car-svg" width="280" height="200" viewBox="0 0 280 200"
+           style="animation: carFloat 2s ease-in-out infinite alternate;">
+        <style>
+          @keyframes carFloat {
+            from { transform: translateY(0px); }
+            to   { transform: translateY(-6px); }
+          }
+        </style>
+        <ellipse cx="140" cy="192" rx="110" ry="6" fill="#00d4ff0a">
+          <animate attributeName="rx" values="110;80;110" dur="2s" repeatCount="indefinite"/>
+          <animate attributeName="opacity" values="0.6;0.2;0.6" dur="2s" repeatCount="indefinite"/>
+        </ellipse>
+        <circle cx="68"  cy="164" r="28" fill="#0d1220" stroke="#00d4ff" stroke-width="2"/>
+        <circle cx="68"  cy="164" r="14" fill="#0a1520" stroke="#00d4ff44" stroke-width="1.5"/>
+        <circle cx="212" cy="164" r="28" fill="#0d1220" stroke="#00d4ff" stroke-width="2"/>
+        <circle cx="212" cy="164" r="14" fill="#0a1520" stroke="#00d4ff44" stroke-width="1.5"/>
+        <path d="M30 162 L30 120 Q32 104 50 96 L82 74 Q104 52 140 50 Q176 48 206 62 L242 82 Q260 90 262 108 L262 162 Z"
+              fill="#0d2040" stroke="#1a3a6a" stroke-width="2"/>
+        <path d="M82 74 Q104 52 140 50 Q176 48 206 62 L198 98 Q176 90 140 88 Q104 88 88 96 Z"
+              fill="#0a1830" stroke="#1a3a6a" stroke-width="1"/>
+        <path d="M90 96 Q106 82 140 80 Q172 78 195 92 L187 112 Q168 106 140 106 Q112 106 98 112 Z"
+              fill="#0d2e50" stroke="#00d4ff55" stroke-width="1"/>
+        <ellipse cx="252" cy="130" rx="10" ry="8" fill="#00d4ff" opacity="0.9"/>
+        <ellipse cx="252" cy="130" rx="6"  ry="4"  fill="#fff"/>
+        <rect x="31" y="118" width="8" height="18" rx="2" fill="#ff4444" opacity="0.8"/>
+        <line x1="140" y1="90" x2="142" y2="158" stroke="#1a3a6a" stroke-width="1.5"/>
+        <g transform="translate(88,56)">
+          <rect x="0"  y="0" width="46" height="16" rx="3" fill="#0a1525" stroke="#00d4ff" stroke-width="1"/>
+          <rect x="46" y="4" width="5"  height="8"  rx="1" fill="#00d4ff44"/>
+          <rect x="2" y="2" width="36"  height="12" rx="2" fill="#0f1e33"/>
+          <rect x="4" y="3" class="battery-fill" height="10" rx="2"
+                fill="url(#battGrad2)" width="36"/>
+        </g>
+        <defs>
+          <linearGradient id="battGrad2" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0%"   stop-color="#00ff88"/>
+            <stop offset="100%" stop-color="#00d4ff"/>
+          </linearGradient>
+        </defs>
+        <!-- wireless receiver pad under car -->
+        <rect x="60" y="174" width="160" height="8" rx="4" fill="#00d4ff" opacity="0.25">
+          <animate attributeName="opacity" values="0.15;0.5;0.15" dur="1.5s" repeatCount="indefinite"/>
+        </rect>
+      </svg>
+    </div>
+  </div>
+
+  <!-- efficiency -->
+  <div class="efficiency-wrap">
+    <div class="eff-header">
+      <span class="eff-label">Charging Efficiency</span>
+      <span class="eff-value">85%</span>
+    </div>
+    <div class="eff-bar-bg">
+      <div class="eff-bar-fill" style="--fill: 85%;"></div>
+    </div>
+    <div class="eff-stats">
+      <div class="stat"><div class="stat-val">11 kW</div><div class="stat-lbl">Power</div></div>
+      <div class="stat"><div class="stat-val">85%</div><div class="stat-lbl">Efficiency</div></div>
+      <div class="stat"><div class="stat-val">~90 min</div><div class="stat-lbl">Full Charge</div></div>
+      <div class="stat"><div class="stat-val">Inductive</div><div class="stat-lbl">Type</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function show(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    // restart bar animation on charge screens
+    if (id === 'wired-screen' || id === 'wireless-screen') {
+      const bar = document.querySelector('#' + id + ' .eff-bar-fill');
+      if (bar) { bar.style.animation = 'none'; void bar.offsetWidth; bar.style.animation = ''; }
+    }
+  }
+</script>
+</body>
+</html>
