@@ -784,7 +784,7 @@
 <div id="wired-screen" class="screen" style="background:radial-gradient(ellipse at 70% 50%, #0d2040 0%, #0a0e1a 70%);">
   <button class="back-btn" onclick="show('choice-screen')" data-i18n="back">← Back</button>
   <div class="screen-left">
-    <span class="ch-number">02·1</span>
+    <span class="ch-number">03</span>
   </div>
   <div class="screen-right">
     <div class="screen-title" data-i18n="wiredTitle">Wired Charging</div>
@@ -944,7 +944,7 @@
 <div id="wireless-screen" class="screen" style="background:radial-gradient(ellipse at 70% 50%, #0d2040 0%, #0a0e1a 70%);">
   <button class="back-btn" onclick="show('choice-screen')" data-i18n="back">← Back</button>
   <div class="screen-left">
-    <span class="ch-number">02·2</span>
+    <span class="ch-number">04</span>
   </div>
   <div class="screen-right">
     <div class="screen-title" data-i18n="wirelessTitle">Wireless Charging</div>
@@ -1006,6 +1006,50 @@
     </div>
   </div>
   </div><!-- /.screen-right -->
+</div>
+
+<!-- ═══════════════ BATTLE ARCS SCREEN ═══════════════ -->
+<div id="battle-screen" class="screen" style="position:relative;overflow:hidden;background:#090d1a;">
+
+  <!-- Full-bleed SVG arc background -->
+  <svg xmlns="http://www.w3.org/2000/svg"
+       style="position:absolute;inset:0;width:100%;height:100%;display:block;"
+       viewBox="0 0 3840 2160" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <clipPath id="battle-clip"><rect width="3840" height="2160"/></clipPath>
+    </defs>
+    <rect width="3840" height="2160" fill="#090d1a"/>
+    <g clip-path="url(#battle-clip)">
+      <!-- 5 electric arcs — centre (−1800, 1080)
+           r=2700 innermost: rightmost x=900, clearing the left panel (x≈576).
+           r=3600 outermost: rightmost x=1800, valley narrows to ~240 px in viewBox.
+           Painted largest→smallest; each circle paints over the previous interior. -->
+      <circle cx="-1800" cy="1080" r="3600" fill="#162048"/>
+      <circle cx="-1800" cy="1080" r="3375" fill="#2d3e88"/>
+      <circle cx="-1800" cy="1080" r="3150" fill="#1e2c62"/>
+      <circle cx="-1800" cy="1080" r="2925" fill="#364c94"/>
+      <circle cx="-1800" cy="1080" r="2700" fill="#283878"/>
+      <!-- 5 legacy arcs — centre (5640, 1080); same radii, maroon palette -->
+      <circle cx="5640" cy="1080" r="3600" fill="#1a0810"/>
+      <circle cx="5640" cy="1080" r="3375" fill="#3e1828"/>
+      <circle cx="5640" cy="1080" r="3150" fill="#280e18"/>
+      <circle cx="5640" cy="1080" r="2925" fill="#4e2030"/>
+      <circle cx="5640" cy="1080" r="2700" fill="#3a1820"/>
+    </g>
+  </svg>
+
+  <!-- Left panel — chapter number (same font, colour, animation as other screens) -->
+  <div class="screen-left" style="position:relative;z-index:10;background:#060a16;">
+    <span class="ch-number">05</span>
+  </div>
+
+  <!-- Right area — centred headline, same proportions as other screens -->
+  <div class="screen-right" style="position:relative;z-index:10;">
+    <p style="font-family:'Courier New',Courier,monospace;font-size:clamp(0.85rem,2vw,2.6rem);font-weight:700;text-transform:uppercase;letter-spacing:0.14em;text-align:center;line-height:1.3;">
+      <span style="color:#ffffff;">EARLY-STAGE PROMISE MEETS </span><span style="color:#7b9eff;">LATE-STAGE BARRIERS</span>
+    </p>
+  </div>
+
 </div>
 
 <!-- ═══════════════ BOTTOM BAR ═══════════════ -->
@@ -1166,10 +1210,11 @@
   // ── Chapter definition ──────────────────────────────────────────────────
   // Each entry is a screen. sub:true = sub-chapter (smaller dot).
   const CHAPTERS = [
-    { id: 'start-screen',    label: 'CHAPTER  01 / 04', sub: false, tag: 'INTRO'    },
-    { id: 'choice-screen',   label: 'CHAPTER  02 / 04', sub: false, tag: 'SELECT'   },
+    { id: 'start-screen',    label: 'CHAPTER  01 / 05', sub: false, tag: 'INTRO'    },
+    { id: 'choice-screen',   label: 'CHAPTER  02 / 05', sub: false, tag: 'SELECT'   },
     { id: 'wired-screen',    label: 'CHAPTER  02 · 1',  sub: true,  tag: 'WIRED'    },
     { id: 'wireless-screen', label: 'CHAPTER  02 · 2',  sub: true,  tag: 'WIRELESS' },
+    { id: 'battle-screen',   label: 'CHAPTER  03 / 05', sub: false, tag: 'BATTLE'   },
   ];
   let currentChapterIdx = 0;
 
