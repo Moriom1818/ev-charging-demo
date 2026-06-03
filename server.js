@@ -13,6 +13,7 @@ const MIME = {
   '.png':  'image/png',
   '.jpg':  'image/jpeg',
   '.ico':  'image/x-icon',
+  '.pdf':  'application/pdf',
 };
 
 http.createServer((req, res) => {

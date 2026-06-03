@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>EV Charging Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@900&display=swap" rel="stylesheet">
   <script type="importmap">
     {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.167.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.167.0/examples/jsm/"}}
   </script>
@@ -27,15 +30,61 @@
 
     .screen {
       display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      flex-direction: row;
+      align-items: stretch;
       width: 100%;
       height: 100%;
       padding-bottom: var(--bar-h);
       animation: fadeIn 0.5s ease;
     }
     .screen.active { display: flex; }
+
+    /* ── LEFT PANEL — chapter number only ── */
+    .screen-left {
+      width: clamp(120px, 15vw, 580px);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(6, 10, 22, 0.72);
+      border-right: 1px solid rgba(255, 255, 255, 0.06);
+      overflow: hidden;
+    }
+
+    /* Big chapter number — 5vw per character fits 5 chars in 15vw panel */
+    .ch-number {
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(1.5rem, 4.8vw, 10rem);
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: #6B7AFF;
+      user-select: none;
+      text-align: center;
+      padding: 0 0.3em;
+    }
+
+    /* Intro page only: 500px black → 900px electric, ~8s cinematic */
+    @keyframes chIntroReveal {
+      0%   { transform: scale(0.556); color: #000000; }
+      100% { transform: scale(1);     color: #6B7AFF; }
+    }
+    .ch-number {
+      transform-origin: center;
+      animation: chIntroReveal 8s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    /* ── RIGHT PANEL ── */
+    .screen-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(12px, 2vw, 48px);
+      min-width: 0;
+      gap: 1rem;
+    }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
@@ -65,7 +114,7 @@
       letter-spacing: 0.04em;
       text-transform: uppercase;
       color: #8899aa;
-      margin-bottom: 2.5rem;
+      margin-bottom: 0;
     }
 
     .hero-car { margin-bottom: 0; display: block; }
@@ -79,10 +128,9 @@
       height: var(--bar-h);
       display: flex;
       align-items: center;
-      background: rgba(0, 0, 0, 0.3);
+      background: #13172b;
       border-top: 1px solid rgba(255, 255, 255, 0.07);
       z-index: 150;
-      backdrop-filter: blur(50px);
     }
 
     /* Each cluster absolutely positioned inside the bar */
@@ -165,43 +213,40 @@
       color: rgba(255, 255, 255, 0.65);
     }
 
-    /* Language switcher — ~190×100, 2xl (50px) radius */
+    /* Language switcher */
     .lang-switcher {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.15rem;
-      width:  clamp(100px, 4.95vw, 190px);   /* ~190px at 4K */
-      height: clamp(40px,  4.63vh, 100px);    /* ~100px at 4K */
-      border-radius: 50px;
-      background: rgba(10, 18, 32, 0.55);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      backdrop-filter: blur(8px);
+      gap: 0.1rem;
+      padding: clamp(3px, 0.3vh, 6px);
+      border-radius: 100px;
+      background: rgba(6, 10, 22, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.18);
     }
     .lang-btn {
       background: none;
       border: 1px solid transparent;
-      color: rgba(255, 255, 255, 0.45);
-      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: clamp(0.5rem, 0.6vw, 0.75rem);
       font-weight: 700;
-      letter-spacing: 3px;
+      letter-spacing: 2px;
       text-transform: uppercase;
       cursor: pointer;
-      padding: 0.28rem 0.65rem;
-      border-radius: 1.5rem;
+      padding: clamp(4px, 0.5vh, 12px) clamp(8px, 0.8vw, 20px);
+      border-radius: 100px;
       transition: color 0.25s, background 0.25s, border-color 0.25s;
       font-family: inherit;
       line-height: 1;
     }
-    /* Selected pattern (system): blur(20px) · rgba(241,243,252,0.2) · 1px rgba(241,243,252,0.3) border */
     .lang-btn.active {
       color: #ffffff;
-      background: rgba(241, 243, 252, 0.2);
-      border: 1px solid rgba(241, 243, 252, 0.3);
-      backdrop-filter: blur(20px);
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.25);
     }
+    .lang-btn:hover:not(.active) { color: rgba(255, 255, 255, 0.7); }
     .lang-dot {
-      color: rgba(255, 255, 255, 0.18);
+      color: rgba(255, 255, 255, 0.15);
       font-size: 0.75rem;
       line-height: 1;
       user-select: none;
@@ -221,23 +266,27 @@
     }
 
     .chapter-arrow {
-      background: none;
-      border: none;
-      color: rgba(255, 255, 255, 0.55);
+      background: rgba(20, 26, 50, 0.95);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      color: rgba(255, 255, 255, 0.95);
       font-size: clamp(0.55rem, 0.65vw, 0.75rem);
       font-weight: 600;
       letter-spacing: 2px;
       text-transform: uppercase;
       cursor: pointer;
-      padding: 0.35rem clamp(6px, 0.6vw, 16px);
-      border-radius: 50px;
-      transition: color 0.2s, background 0.2s;
+      padding: clamp(6px, 0.7vh, 18px) clamp(10px, 1vw, 24px);
+      border-radius: 100px;
+      transition: color 0.2s, background 0.2s, border-color 0.2s;
       font-family: inherit;
       white-space: nowrap;
       flex-shrink: 0;
     }
-    .chapter-arrow:hover:not(:disabled) { color: #fff; background: rgba(255,255,255,0.1); }
-    .chapter-arrow:disabled { opacity: 0.2; cursor: not-allowed; }
+    .chapter-arrow:hover:not(:disabled) {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.65);
+    }
+    .chapter-arrow:disabled { opacity: 0.45; cursor: not-allowed; }
 
     .chapter-center {
       flex: 1;
@@ -285,6 +334,88 @@
     }
     .chap-dot:hover:not(.active):not(.visited) { background: rgba(255, 255, 255, 0.55); }
 
+    /* ── SOURCES BUTTON ── */
+    .sources-btn {
+      display: flex;
+      align-items: center;
+      gap: clamp(6px, 0.6vw, 12px);
+      background: rgba(22, 27, 44, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 100px;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: clamp(0.38rem, 0.45vw, 0.55rem);
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      padding: clamp(8px, 0.75vh, 22px) clamp(12px, 1.1vw, 30px);
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s, border-color 0.2s, color 0.2s;
+      white-space: nowrap;
+      backdrop-filter: blur(8px);
+    }
+    .sources-btn:hover {
+      background: rgba(35, 42, 65, 0.95);
+      border-color: rgba(255, 255, 255, 0.28);
+      color: #fff;
+    }
+    .sources-btn svg { flex-shrink: 0; }
+
+    /* ── SOURCES PANEL ── */
+    .sources-panel {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 12px);
+      right: 0;
+      min-width: 320px;
+      max-width: 420px;
+      background: rgba(10, 14, 28, 0.96);
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      border-radius: 14px;
+      padding: 10px 8px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+      z-index: 300;
+    }
+    .sources-panel.open { display: block; }
+    .sources-panel-title {
+      font-size: 0.38rem;
+      letter-spacing: 3px;
+      color: rgba(255,255,255,0.3);
+      text-transform: uppercase;
+      padding: 4px 10px 8px;
+    }
+    .source-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: clamp(6px,0.6vh,12px) 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s;
+      text-decoration: none;
+      color: rgba(255,255,255,0.75);
+    }
+    .source-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+    .source-item-icon {
+      flex-shrink: 0;
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      background: rgba(107,122,255,0.15);
+      border: 1px solid rgba(107,122,255,0.3);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .source-item-name {
+      flex: 1;
+      font-size: clamp(0.38rem, 0.42vw, 0.52rem);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .chapter-label {
       font-size: clamp(0.38rem, 0.45vw, 0.55rem);
       letter-spacing: 3px;
@@ -319,12 +450,7 @@
         0 0 0 28px rgba(120, 122, 255, 0.06);
     }
 
-    /* ── CHOICE SCREEN ── */
-    #choice-screen {
-      background: radial-gradient(ellipse at center, #0d2040 0%, #0a0e1a 70%);
-      gap: 2rem;
-    }
-    /* H0 — choice screen title */
+    /* H0 — choice screen title (left panel) */
     .choice-title {
       font-size: 4.375rem;
       font-weight: 900;
@@ -332,7 +458,7 @@
       letter-spacing: 0.04em;
       text-transform: uppercase;
       color: #cce8ff;
-      margin-bottom: 1rem;
+      margin-bottom: 0.4rem;
     }
     .choice-cards {
       display: flex;
@@ -370,17 +496,11 @@
       line-height: 1.4;
     }
 
-    /* ── ANIMATION SCREENS ── */
-    #wired-screen, #wireless-screen {
-      background: radial-gradient(ellipse at center, #0d2040 0%, #0a0e1a 70%);
-      gap: 0;
-      flex-direction: column;
-    }
-
+    /* Back button — top-left of the right panel area */
     .back-btn {
       position: absolute;
       top: 1.5vh;
-      left: 1.5vw;
+      left: calc(clamp(120px, 15vw, 580px) + 1.5vw);
       background: #1a2a3a;
       border: 1px solid #2a4a6a;
       color: #8899aa;
@@ -392,7 +512,7 @@
     }
     .back-btn:hover { color: #00d4ff; border-color: #00d4ff; }
 
-    /* H0 — wired / wireless screen title */
+    /* H0 — screen title (left panel) */
     .screen-title {
       font-size: 4.375rem;
       font-weight: 900;
@@ -403,7 +523,7 @@
       margin-bottom: 0.3rem;
       text-shadow: 0 0 20px #00d4ff66;
     }
-    /* H1 — wired / wireless screen subtitle */
+    /* H1 — screen subtitle (left panel) */
     .screen-sub {
       font-size: 3.125rem;
       font-weight: 700;
@@ -411,7 +531,7 @@
       letter-spacing: 0.04em;
       text-transform: uppercase;
       color: #506070;
-      margin-bottom: 1.5rem;
+      margin-bottom: 0;
     }
 
     /* scene container — width/height set by JS */
@@ -517,7 +637,7 @@
 
     /* ── EFFICIENCY BAR ── */
     .efficiency-wrap {
-      width: min(80vw, 3200px);
+      width: min(95%, 2400px);
       background: #0a1525;
       border-radius: 1rem;
       padding: 1.25rem 1.75rem;
@@ -612,18 +732,26 @@
 <body>
 
 <!-- ═══════════════ START SCREEN ═══════════════ -->
-<div id="start-screen" class="screen active">
-  <div class="logo-title" data-i18n="logoTitle">EV CHARGE</div>
-  <div class="logo-sub" data-i18n="logoSub">Welcome to Electric Mobility Charging System</div>
-  <canvas id="hero-car-canvas" class="hero-car" width="480" height="260"></canvas>
+<div id="start-screen" class="screen active" style="background:radial-gradient(ellipse at 70% 50%, #0d2040 0%, #0a0e1a 70%);">
+  <div class="screen-left">
+    <span class="ch-number">01</span>
+  </div>
+  <div class="screen-right">
+    <div class="logo-title" data-i18n="logoTitle">EV CHARGE</div>
+    <div class="logo-sub" data-i18n="logoSub">Welcome to Electric Mobility Charging System</div>
+    <canvas id="hero-car-canvas" class="hero-car" width="480" height="260"></canvas>
+  </div>
 </div>
 
 <!-- ═══════════════ CHOICE SCREEN ═══════════════ -->
-<div id="choice-screen" class="screen">
+<div id="choice-screen" class="screen" style="background:radial-gradient(ellipse at 70% 50%, #0d2040 0%, #0a0e1a 70%);">
   <button class="back-btn" onclick="show('start-screen')" data-i18n="back">← Back</button>
-  <div class="choice-title" data-i18n="chooseTitle">Choose Charging Method</div>
-  <div class="logo-sub" data-i18n="chooseSub" style="margin-bottom:2rem;">Select how you want to charge</div>
-
+  <div class="screen-left">
+    <span class="ch-number">02</span>
+  </div>
+  <div class="screen-right">
+    <div class="choice-title" data-i18n="chooseTitle">Choose Charging Method</div>
+    <div class="logo-sub" data-i18n="chooseSub">Select how you want to charge</div>
   <div class="choice-cards">
     <div class="card" onclick="show('wired-screen')">
       <svg viewBox="0 0 64 64" fill="none">
@@ -649,14 +777,18 @@
       <div class="card-desc"  data-i18n="wirelessDesc">Inductive charging through the air</div>
     </div>
   </div>
+  </div><!-- /.screen-right -->
 </div>
 
 <!-- ═══════════════ WIRED SCREEN ═══════════════ -->
-<div id="wired-screen" class="screen">
+<div id="wired-screen" class="screen" style="background:radial-gradient(ellipse at 70% 50%, #0d2040 0%, #0a0e1a 70%);">
   <button class="back-btn" onclick="show('choice-screen')" data-i18n="back">← Back</button>
-  <div class="screen-title" data-i18n="wiredTitle">Wired Charging</div>
-  <div class="screen-sub"   data-i18n="wiredSub">AC / DC Cable Connection</div>
-
+  <div class="screen-left">
+    <span class="ch-number">02·1</span>
+  </div>
+  <div class="screen-right">
+    <div class="screen-title" data-i18n="wiredTitle">Wired Charging</div>
+    <div class="screen-sub"   data-i18n="wiredSub">AC / DC Cable Connection</div>
   <div class="scene">
     <div class="scene-inner">
       <div class="ground"></div>
@@ -670,8 +802,6 @@
               <rect x="0.5" y="0.5" width="3" height="3" fill="#CDCBC5"/>
             </pattern>
           </defs>
-          <rect x="42" y="0" width="9" height="20" rx="3" fill="#1a1a1a"/>
-          <rect x="58" y="0" width="9" height="20" rx="3" fill="#1a1a1a"/>
           <rect x="8" y="23" width="136" height="193" rx="3" fill="#000" opacity="0.14"/>
           <rect x="5" y="18" width="136" height="8" rx="3" fill="#E55A00"/>
           <rect x="5" y="26" width="136" height="166" fill="#EDEBE6" stroke="#D0CEC8" stroke-width="0.5"/>
@@ -807,13 +937,18 @@
       <div class="stat"><div class="stat-val" data-i18n="dcFast">DC Fast</div><div class="stat-lbl" data-i18n="typeLabel">Type</div></div>
     </div>
   </div>
+  </div><!-- /.screen-right -->
 </div>
 
 <!-- ═══════════════ WIRELESS SCREEN ═══════════════ -->
-<div id="wireless-screen" class="screen">
+<div id="wireless-screen" class="screen" style="background:radial-gradient(ellipse at 70% 50%, #0d2040 0%, #0a0e1a 70%);">
   <button class="back-btn" onclick="show('choice-screen')" data-i18n="back">← Back</button>
-  <div class="screen-title" data-i18n="wirelessTitle">Wireless Charging</div>
-  <div class="screen-sub"   data-i18n="wirelessSub">Inductive / Resonant Transfer</div>
+  <div class="screen-left">
+    <span class="ch-number">02·2</span>
+  </div>
+  <div class="screen-right">
+    <div class="screen-title" data-i18n="wirelessTitle">Wireless Charging</div>
+    <div class="screen-sub"   data-i18n="wirelessSub">Inductive / Resonant Transfer</div>
 
   <div class="scene">
     <div class="scene-inner">
@@ -870,6 +1005,7 @@
       <div class="stat"><div class="stat-val" data-i18n="resonant">Resonant</div><div class="stat-lbl" data-i18n="typeLabel">Type</div></div>
     </div>
   </div>
+  </div><!-- /.screen-right -->
 </div>
 
 <!-- ═══════════════ BOTTOM BAR ═══════════════ -->
@@ -906,16 +1042,61 @@
     </div>
   </div>
 
-  <!-- Right: logo -->
+  <!-- Right: sources button -->
   <div class="bb-right">
-    <img src="lut-logo.png"
-         alt="Electric Mobility Research Center | LUT University | KEMPOWER"
-         style="height:clamp(36px,3.5vh,90px);mix-blend-mode:screen;opacity:0.85;">
+    <div style="position:relative;">
+      <button class="sources-btn" id="sources-btn" onclick="toggleSources(event)">
+        <svg width="14" height="17" viewBox="0 0 14 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8 1H2C1.46957 1 0.960859 1.21071 0.585786 1.58579C0.210714 1.96086 0 2.46957 0 3V14C0 14.5304 0.210714 15.0391 0.585786 15.4142C0.960859 15.7893 1.46957 16 2 16H12C12.5304 16 13.0391 15.7893 13.4142 15.4142C13.7893 15.0391 14 14.5304 14 14V7L8 1Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 1V7H14" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <line x1="3" y1="10" x2="11" y2="10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+          <line x1="3" y1="12.5" x2="8" y2="12.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        SOURCES &amp; RESEARCH - <span id="sources-count"></span>
+      </button>
+      <div class="sources-panel" id="sources-panel"></div>
+    </div>
   </div>
 
 </div>
 
 <script>
+  // ── Sources / Research documents ────────────────────────────────────────
+  // Add or remove entries here — the count on the button updates automatically.
+  const SOURCES = [
+    { name: 'State of the Art of Wireless Charging', file: 'EMRC_raportti_143.pdf' }, {name: 'A SOCIO-TECHNICAL APPROACH TO GREENHOUSE GAS REDUCTION OF EUROPEAN MAINTENANCE MOBILITY IN A LARGE ENGINEERING AND SERVICE COMPANY', file: 'MasterThesis_Excell_Martin.pdf'},
+      {name: 'Review of emerging advanced smart charging flexibility business models', file: 'mendes_et_al_review_of_aam.pdf'}
+    
+  ];
+
+  function buildSources() {
+    document.getElementById('sources-count').textContent = SOURCES.length;
+    const panel = document.getElementById('sources-panel');
+    panel.innerHTML = `<div class="sources-panel-title">Documents</div>` +
+      SOURCES.map(s => `
+        <a class="source-item" href="${s.file}" target="_blank" onclick="closeSourcesPanel()">
+          <div class="source-item-icon">
+            <svg width="12" height="14" viewBox="0 0 12 14" fill="none">
+              <path d="M7 1H2C1.46957 1 0.960859 1.21071 0.585786 1.58579C0.210714 1.96086 0 2.46957 0 3V11C0 11.5304 0.210714 12.0391 0.585786 12.4142C0.960859 12.7893 1.46957 13 2 13H10C10.5304 13 11.0391 12.7893 11.4142 12.4142C11.7893 12.0391 12 11.5304 12 11V6L7 1Z" stroke="#6B7AFF" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M7 1V6H12" stroke="#6B7AFF" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="source-item-name">${s.name}</span>
+        </a>`).join('');
+  }
+
+  function toggleSources(e) {
+    e.stopPropagation();
+    document.getElementById('sources-panel').classList.toggle('open');
+  }
+
+  function closeSourcesPanel() {
+    document.getElementById('sources-panel').classList.remove('open');
+  }
+
+  document.addEventListener('click', closeSourcesPanel);
+  buildSources();
+
   // ── Translations ────────────────────────────────────────────────────────
   const i18n = {
     en: {
@@ -1047,6 +1228,14 @@
     action.style.opacity       = id === 'start-screen' ? '1' : '0';
     action.style.pointerEvents = id === 'start-screen' ? ''  : 'none';
 
+    // Re-trigger chapter number animation on every screen change
+    const chNum = document.querySelector('#' + id + ' .ch-number');
+    if (chNum) {
+      chNum.style.animation = 'none';
+      void chNum.offsetWidth;
+      chNum.style.animation = '';
+    }
+
     if (id === 'wired-screen' || id === 'wireless-screen') {
       const prefix = id === 'wired-screen' ? 'wired' : 'wireless';
       updateEff(prefix, document.getElementById(prefix + '-slider').value, true);
@@ -1077,12 +1266,31 @@
                   : timeMin >= 60   ? `~${Math.round(timeMin/6)/10} h`
                   : `~${timeMin} min`;
 
-    const bar = document.getElementById(prefix + '-bar');
+    const bar    = document.getElementById(prefix + '-bar');
+    const slider = document.getElementById(prefix + '-slider');
     if (animate) {
+      // Kill CSS animation — we drive both bar and thumb from the same JS loop
       bar.style.animation = 'none';
-      void bar.offsetWidth;
-      bar.style.setProperty('--fill', eff + '%');
-      bar.style.animation = '';
+      bar.style.width = '0%';
+      slider.value = 0;
+
+      const duration = 2000;
+      const startTime = performance.now();
+      function animateBoth(now) {
+        const t      = Math.min((now - startTime) / duration, 1);
+        const eased  = 1 - Math.pow(1 - t, 2.5); // same curve for both
+        const current = eased * eff;
+        bar.style.width = current + '%';
+        slider.value    = current;
+        if (t < 1) {
+          requestAnimationFrame(animateBoth);
+        } else {
+          bar.style.width  = eff + '%';
+          slider.value     = eff;
+          bar.style.animation = 'shimmer 2s linear infinite';
+        }
+      }
+      requestAnimationFrame(animateBoth);
     } else {
       bar.style.animation = 'none';
       bar.style.width     = eff + '%';
@@ -1104,9 +1312,10 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
 // ── Scene scaling ──────────────────────────────────────────────────────────
 function computeSceneScale() {
-  const barH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--bar-h')) || 80;
-  const maxW = window.innerWidth  * 0.70;
-  const maxH = (window.innerHeight - barH) * 0.42;
+  const barH      = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--bar-h')) || 80;
+  const leftPanel = window.innerWidth * 0.15;           // 15vw left panel
+  const maxW      = (window.innerWidth - leftPanel) * 0.82;
+  const maxH      = (window.innerHeight - barH) * 0.42;
   return Math.min(maxW / 720, maxH / 260);
 }
 
@@ -1146,9 +1355,9 @@ function initCar(canvasId, { wireless = false, hero = false } = {}) {
 
   let W, H;
   if (hero) {
-    const s = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
-    W = Math.round(480 * Math.max(1, s));
-    H = Math.round(260 * Math.max(1, s));
+    // Right panel is ~85vw; fill about 55% of viewport width for a prominent hero
+    W = Math.round(window.innerWidth * 0.50);
+    H = Math.round(W * 260 / 480);
     canvas.style.width  = W + 'px';
     canvas.style.height = H + 'px';
   } else {
